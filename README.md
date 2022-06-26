@@ -7,4 +7,5 @@ HomeCloudStorage ГПР ПГНИУ
 (в минимальной конфигурации) - например на базе портативных компьютеров Raspberry Pi.
 
 Для запуска клиента: ClientHomeCloud/app/src/main/java/com/example/clienthomecloud/MainActivity
+
 Для запуска сервера: ServerHomeCloud/src/Server
