@@ -4,13 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.net.InetSocketAddress;
+import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    TextView textView;
     private Connection  mConnect  = null;
     private  String     HOST      = "192.168.1.109";
     private  int        PORT      = 3345;
@@ -20,22 +19,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        onOpenClick();
+        textView = (TextView) findViewById(R.id.StatusView);
     }
 
-    private void onOpenClick()
+    public void onOpenClick(View view)
     {
         // Создание подключения
         mConnect = new Connection(HOST, PORT);
+        textView.setText("Соединение установлено");
         // Открытие сокета в отдельном потоке
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     mConnect.openConnection();
-                    Log.d(LOG_TAG, "Соединение установлено");
-                    Log.d(LOG_TAG, "(mConnect != null) = "
-                            + (mConnect != null));
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage());
                     mConnect = null;
@@ -44,10 +41,15 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void onCloseClick()
+    public void onCloseClick(View view)
     {
         // Закрытие соединения
-        mConnect.closeConnection();
-        Log.d(LOG_TAG, "Соединение закрыто");
+        if(mConnect != null){
+            mConnect.closeConnection();
+            textView.setText("Соединение закрыто");
+        }
+        else{
+            Log.d(LOG_TAG, "Соединение не существует");
+        }
     }
 }
