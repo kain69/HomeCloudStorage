@@ -20,29 +20,13 @@ public class Server {
     public static void main(String[] args) {
 
         // стартуем сервер на порту 3345 и инициализируем переменную для обработки консольных команд с самого сервера
-        try (ServerSocket server = new ServerSocket(3345);
-             BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+        try {
+            ServerSocket server = new ServerSocket(3345);
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Server socket created, command console reader for listen to server commands");
 
             // стартуем цикл при условии что серверный сокет не закрыт
             while (!server.isClosed()) {
-
-                // проверяем поступившие комманды из консоли сервера если такие
-                // были
-                if (br.ready()) {
-                    System.out.println("Main Server found any messages in channel, let's look at them.");
-
-                    // если команда - quit то инициализируем закрытие сервера и
-                    // выход из цикла раздачии нитей монопоточных серверов
-                    String serverCommand = br.readLine();
-                    if (serverCommand.equalsIgnoreCase("quit")) {
-                        System.out.println("Main Server initiate exiting...");
-                        server.close();
-                        break;
-                    }
-                }
-
-                // если комманд от сервера нет то становимся в ожидание
                 // подключения к сокету общения под именем - "clientDialog" на
                 // серверной стороне
                 Socket client = server.accept();
