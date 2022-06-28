@@ -25,7 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="76dp"
         android:onClick="onOpenClick"
         android:text="Connect"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,9 +39,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="20dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnDisconnect" />
+
+    <EditText
+        android:id="@+id/TextIP"
+        android:layout_width="388dp"
+        android:layout_height="44dp"
+        android:layout_weight="2"
+        android:ems="10"
+        android:hint="IP Address"
+        android:inputType="number|numberDecimal"
+        android:digits="0123456789."
+        android:textAppearance="@android:style/TextAppearance.Small"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="16dp"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

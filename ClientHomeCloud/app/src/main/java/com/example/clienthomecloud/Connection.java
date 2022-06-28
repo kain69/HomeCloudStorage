@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Stack;
 
 import android.widget.TextView;
 
@@ -46,7 +47,6 @@ public class Connection {
                 br = new BufferedReader(new InputStreamReader(System.in));
                 oos = new DataOutputStream(mSocket.getOutputStream());
                 ois = new DataInputStream(mSocket.getInputStream());
-
                 Log.d(LOG_TAG, "Client connected to socket.");
                 // проверяем живой ли канал и работаем если живой
                 Log.d(LOG_TAG, "Iam Connected");
