@@ -48,3 +48,10 @@ public class Server {
         }
     }
 }
+
+        //listWithCodes.put(1, "Соединение установлено");
+        //listWithCodes.put(2, "Соединение закрыто");
+        //listWithCodes.put(3, "Соединение не установлено, Сервер не найден");
+        //listWithCodes.put(4, "Соединение не существует");
+        //listWithCodes.put(5, "Идет отправление на сервер");
+        //listWithCodes.put(6, "Отправка произошла");

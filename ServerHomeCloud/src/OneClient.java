@@ -1,5 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -16,7 +17,6 @@ public class OneClient implements Runnable {
 
         try {
             // инициируем каналы общения в сокете, для сервера
-
             // канал записи в сокет следует инициализировать сначала канал чтения для избежания блокировки выполнения программы на ожидании заголовка в сокете
             DataOutputStream out = new DataOutputStream(clientDialog.getOutputStream());
             System.out.println("DataOutputStream  created");
@@ -37,6 +37,23 @@ public class OneClient implements Runnable {
                 // и выводит в консоль
                 System.out.println("READ from clientDialog message - " + entry);
 
+                if (entry.equalsIgnoreCase("image")) { // кто-то скинул нюдесы
+                    System.out.println("1");
+                    FileOutputStream  outFile = new FileOutputStream("test2.jpg");
+                    byte[] bytes = new byte[5*1024];
+
+                    System.out.println("1");
+                    int count, total=0;
+                    long lenght = in.readLong();
+                    System.out.println(lenght);
+                    while ((count = in.read(bytes)) > -1) {
+                        total+=count;
+                        System.out.println(total);
+                        outFile.write(bytes, 0, count);
+                        if (total==lenght) break;
+                    }
+                    outFile.close();
+                }
                 // инициализация проверки условия продолжения работы с клиентом
                 // по этому сокету по кодовому слову - quit в любом регистре
                 if (entry.equalsIgnoreCase("quit")) {
@@ -48,6 +65,11 @@ public class OneClient implements Runnable {
                     Thread.sleep(3000);
                     break;
                 }
+
+                System.out.println("Server try writing to channel");
+                out.writeUTF("Server reply - " + entry + " - OK");
+                System.out.println("Server Wrote message to clientDialog.");
+
                 // освобождаем буфер сетевых сообщений
                 out.flush();
 

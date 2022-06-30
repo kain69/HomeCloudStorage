@@ -10,12 +10,13 @@ import android.util.Log;
 
 public class CustomTextWatcher implements TextWatcher {
 
-    View v1, v2;
+    View v1, v2, v3;
     EditText ed_ip;
 
-    public CustomTextWatcher(EditText ed_ip, Button v1, Button v2) {
+    public CustomTextWatcher(EditText ed_ip, Button v1, Button v2, Button v3) {
         this.v1 = v1;
         this.v2 = v2;
+        this.v3 = v3;
         this.ed_ip = ed_ip;
     }
 
@@ -29,11 +30,13 @@ public class CustomTextWatcher implements TextWatcher {
     public void afterTextChanged(Editable s) {
         if (ifIpText( ed_ip.getText().toString().trim() )) {
             v1.setEnabled(true);
-            v2.setEnabled(true);
+            v2.setEnabled(false);
+            v3.setEnabled(false);
         }
         else {
             v1.setEnabled(false);
             v2.setEnabled(false);
+            v3.setEnabled(false);
         }
     }
 
