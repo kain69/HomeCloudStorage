@@ -1,10 +1,12 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.net.UnknownHostException;
 
 /**
  * @author mercenery
@@ -18,31 +20,14 @@ public class Server {
      * @param args
      */
     public static void main(String[] args) {
-
         // стартуем сервер на порту 3345 и инициализируем переменную для обработки консольных команд с самого сервера
-        try (ServerSocket server = new ServerSocket(3345);
-             BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+        try {
+            ServerSocket server = new ServerSocket(3345);
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Server socket created, command console reader for listen to server commands");
 
             // стартуем цикл при условии что серверный сокет не закрыт
             while (!server.isClosed()) {
-
-                // проверяем поступившие комманды из консоли сервера если такие
-                // были
-                if (br.ready()) {
-                    System.out.println("Main Server found any messages in channel, let's look at them.");
-
-                    // если команда - quit то инициализируем закрытие сервера и
-                    // выход из цикла раздачии нитей монопоточных серверов
-                    String serverCommand = br.readLine();
-                    if (serverCommand.equalsIgnoreCase("quit")) {
-                        System.out.println("Main Server initiate exiting...");
-                        server.close();
-                        break;
-                    }
-                }
-
-                // если комманд от сервера нет то становимся в ожидание
                 // подключения к сокету общения под именем - "clientDialog" на
                 // серверной стороне
                 Socket client = server.accept();
@@ -63,3 +48,10 @@ public class Server {
         }
     }
 }
+
+        //listWithCodes.put(1, "Соединение установлено");
+        //listWithCodes.put(2, "Соединение закрыто");
+        //listWithCodes.put(3, "Соединение не установлено, Сервер не найден");
+        //listWithCodes.put(4, "Соединение не существует");
+        //listWithCodes.put(5, "Идет отправление на сервер");
+        //listWithCodes.put(6, "Отправка произошла");
