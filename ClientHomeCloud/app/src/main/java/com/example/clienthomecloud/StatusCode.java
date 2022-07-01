@@ -13,5 +13,6 @@ public class StatusCode {
         listWithCodes.put(5, "Идет отправление на сервер");
         listWithCodes.put(6, "Отправка произошла");
         listWithCodes.put(7, "Ошибка отправки");
+        listWithCodes.put(8, "Пользователь отклонил в доступе");
     }
 }

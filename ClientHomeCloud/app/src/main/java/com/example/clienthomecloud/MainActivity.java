@@ -3,6 +3,7 @@ package com.example.clienthomecloud;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Intent;
@@ -24,6 +25,10 @@ import java.util.Stack;
 // если менять текст для IP кнопки слетают
 // Почему-то подключается к несушествующим серверам (не сообщает об ошибке)
 public class MainActivity extends AppCompatActivity {
+
+    private static final int BROWSER_IMAGE = 1;
+    private static final int OPEN_CONECTION = 2;
+    private static final int CLOSE_CONECTION = 3;
 
     EditText TextIP;
     TextView textStatus;
@@ -51,78 +56,98 @@ public class MainActivity extends AppCompatActivity {
         btnBrowser.setVisibility(View.INVISIBLE);
         CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser);
         TextIP.addTextChangedListener(textWatcher);
-
-        //Можно поторгать твою картинку?
-        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this,new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            },1);
-
-        }
     }
 
-    @Override // Можно потрогать твою картинку?
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode==1){
-            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
-
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case BROWSER_IMAGE: BrowserImage(); break;
+                case OPEN_CONECTION:  OpenConection(); break;
+                case CLOSE_CONECTION:  CloseConection(); break;
             }
-            else{
-                Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_LONG).show();
-            }
+        } else {
+            status = 8;
+            statusColor = "#FF0000";
+            UpdateStatus();
         }
     }
 
-    public void onOpenClick(View view)
-    {
+    public void onOpenClick(View view) {
+        int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
+        int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE);
+
+        if (    permissionStatus1 == PackageManager.PERMISSION_GRANTED &&
+                permissionStatus2 == PackageManager.PERMISSION_GRANTED) {
+            OpenConection();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[] {
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.ACCESS_NETWORK_STATE
+                    }, OPEN_CONECTION);
+        }
+    }
+
+    public void onCloseClick(View view) {
+        int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
+        int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE);
+
+        if (    permissionStatus1 == PackageManager.PERMISSION_GRANTED &&
+                permissionStatus2 == PackageManager.PERMISSION_GRANTED) {
+            CloseConection();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE
+            }, CLOSE_CONECTION);
+        }
+    }
+
+    public void onBrowserClick(View view){
+        int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            BrowserImage();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[] {
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    }, BROWSER_IMAGE);
+        }
+    }
+
+    public void BrowserImage(){
+        Intent intent = new Intent(this, BrowseActivity.class);
+        startActivity(intent);
+        UpdateStatus();
+    }
+
+    public void OpenConection(){
         // Создание подключения
         HOST = TextIP.getText().toString();
         mConnect = new Connection(HOST, PORT);
         // Открытие сокета в отдельном потоке
-        connectThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    mConnect.openConnection();
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
-                    mConnect = null;
-                }
-            }
-        });
-        connectThread.start();
-        if(connectThread.isAlive()){
-            btnConnect.setVisibility(View.INVISIBLE);
-            btnDisconnect.setVisibility(View.VISIBLE);
-            btnBrowser.setVisibility(View.VISIBLE);
-            btnBrowser.setEnabled(true);
-            btnDisconnect.setEnabled(true);
-        }
+        mConnect.openConnection();
+        btnConnect.setVisibility(View.INVISIBLE);
+        btnDisconnect.setVisibility(View.VISIBLE);
+        btnBrowser.setVisibility(View.VISIBLE);
+        btnBrowser.setEnabled(true);
+        btnDisconnect.setEnabled(true);
         UpdateStatus();
     }
 
-    public void onCloseClick(View view)
-    {
+    public void CloseConection(){
         // Закрытие соединения
-        if(mConnect != null){
+        if (mConnect != null) {
             mConnect.closeConnection();
-            connectThread.interrupt();
-            btnConnect.setVisibility(View.VISIBLE);
-            btnDisconnect.setVisibility(View.INVISIBLE);
-            btnBrowser.setVisibility(View.INVISIBLE);
-            TextIP.setText("");
-        }
-        else{
+        } else {
             Log.d(LOG_TAG, "Соединение не существует");
         }
         UpdateStatus();
-    }
-
-    public void onBrowserClick(View view){
-        Intent intent = new Intent(this, BrowseActivity.class);
-        startActivity(intent);
-        UpdateStatus();
+        btnConnect.setVisibility(View.VISIBLE);
+        btnDisconnect.setVisibility(View.INVISIBLE);
+        btnBrowser.setVisibility(View.INVISIBLE);
+        TextIP.setText("");
     }
 
     public void UpdateStatus(){

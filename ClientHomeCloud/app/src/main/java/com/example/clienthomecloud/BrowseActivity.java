@@ -12,7 +12,7 @@ import android.view.View;
 public class BrowseActivity extends Activity {
     private static final int SELECT_PICTURE = 1;
 
-    private String selectedImagePath;
+    private String selectedImagePath = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class BrowseActivity extends Activity {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
                 selectedImagePath = getPath(selectedImageUri);
-                Log.d("Image", selectedImagePath);
+//                Log.d("Image", selectedImagePath);
                 try {
                     SendImage();
                 } catch (Exception e) {
@@ -40,10 +40,9 @@ public class BrowseActivity extends Activity {
             }
         }
     }
-
-    /**
-     * helper to retrieve the path of an image URI
-     */
+        /**
+         * helper to retrieve the path of an image URI
+         */
     public String getPath(Uri uri) {
         // just some safety built in
         if( uri == null ) {
