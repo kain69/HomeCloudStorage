@@ -114,7 +114,8 @@ public class Connection {
             MainActivity.status = 5;
             MainActivity.statusColor = "#00FF00";
             oos.writeUTF("image"); // Ало, сервер, лови картинку
-            oos.flush();File file = new File(urlImage);
+            oos.flush();
+            File file = new File(urlImage);
             FileInputStream inF = new FileInputStream(file);
             byte[] bytes = new byte[5*1024];
             int count;

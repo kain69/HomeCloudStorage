@@ -47,9 +47,8 @@ public class MainActivity extends AppCompatActivity {
         btnConnect = (Button) findViewById(R.id.btnConnect);
         btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnBrowser = (Button) findViewById(R.id. btnBrowser);
-        btnConnect.setEnabled(true);
-        btnDisconnect.setEnabled(true);
-        btnBrowser.setEnabled(true);
+        btnDisconnect.setVisibility(View.INVISIBLE);
+        btnBrowser.setVisibility(View.INVISIBLE);
         CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser);
         TextIP.addTextChangedListener(textWatcher);
 
@@ -94,9 +93,11 @@ public class MainActivity extends AppCompatActivity {
         });
         connectThread.start();
         if(connectThread.isAlive()){
-            btnDisconnect.setEnabled(true);
-            btnConnect.setEnabled(false);
+            btnConnect.setVisibility(View.INVISIBLE);
+            btnDisconnect.setVisibility(View.VISIBLE);
+            btnBrowser.setVisibility(View.VISIBLE);
             btnBrowser.setEnabled(true);
+            btnDisconnect.setEnabled(true);
         }
         UpdateStatus();
     }
@@ -107,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
         if(mConnect != null){
             mConnect.closeConnection();
             connectThread.interrupt();
+            btnConnect.setVisibility(View.VISIBLE);
+            btnDisconnect.setVisibility(View.INVISIBLE);
+            btnBrowser.setVisibility(View.INVISIBLE);
             TextIP.setText("");
         }
         else{
