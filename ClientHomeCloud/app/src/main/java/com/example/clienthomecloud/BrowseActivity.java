@@ -57,7 +57,7 @@ public class BrowseActivity extends Activity {
         // this will only work for images selected from gallery
         String[] projection = { MediaStore.Images.Media.DATA };
         Cursor cursor;
-        if (Build.VERSION.SDK_INT > 19) {
+        if (Build.VERSION.SDK_INT > 23) {
             // Will return "image:x*"
             String wholeID = DocumentsContract.getDocumentId(uri);
             // Split at colon, use second item in the array
