@@ -39,7 +39,7 @@ public class OneClient implements Runnable {
 
                 if (entry.equalsIgnoreCase("image")) { // кто-то скинул нюдесы
                     System.out.println("1");
-                    FileOutputStream  outFile = new FileOutputStream("test2.jpg");
+                    FileOutputStream  outFile = new FileOutputStream(in.readUTF());
                     byte[] bytes = new byte[5*1024];
 
                     System.out.println("1");

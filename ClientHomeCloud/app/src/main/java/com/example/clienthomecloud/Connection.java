@@ -131,6 +131,9 @@ public class Connection {
                     byte[] bytes = new byte[5*1024];
                     int count;
                     long lenght = file.length();
+                    String[] temp = urlImage.split("/");
+                    String fileName = temp[temp.length - 1];
+                    oos.writeUTF(fileName);
                     oos.writeLong(lenght);
                     Log.d("TEST", "Я отправил размер файла");
                     while ((count = inF.read(bytes)) > -1) {
