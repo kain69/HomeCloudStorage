@@ -54,15 +54,12 @@ public class Connection {
                         // проверяем живой ли канал и работаем если живой
                         Log.d(LOG_TAG, "Iam Connected");
                         MainActivity.status = 1;
-                        MainActivity.statusColor = "#00FF00";
                     }
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                     MainActivity.status = 3;
-                    MainActivity.statusColor = "#FF0000";
                 } catch (IOException e) {
                     MainActivity.status = 3;
-                    MainActivity.statusColor = "#FF0000";
                     e.printStackTrace();
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage());
@@ -84,17 +81,14 @@ public class Connection {
                         oos.close();
                         mSocket.close();
                         MainActivity.status = 2;
-                        MainActivity.statusColor = "#00FF00";
                     }
                     else{
                         Log.d(LOG_TAG, "Соединение не существует");
                         MainActivity.status = 4;
-                        MainActivity.statusColor = "#FF0000";
                     }
                     mSocket = null;
                 } catch (IOException e) {
                     MainActivity.status = 4;
-                    MainActivity.statusColor = "#FF0000";
                     Log.e(LOG_TAG, "Ошибка при закрытии сокета :"
                             + e.getMessage());
                 } catch (Exception e) {
@@ -107,6 +101,7 @@ public class Connection {
     }
 
     public void sendData(String urlImage) throws Exception {
+        MainActivity.status = 5;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -114,7 +109,6 @@ public class Connection {
                     // Проверка открытия сокета
                     if (mSocket == null || mSocket.isClosed()) {
                         MainActivity.status = 4;
-                        MainActivity.statusColor = "#FF0000";
                         throw new Exception("Ошибка отправки данных. " +
                                 "Сокет не создан или закрыт");
                     }
@@ -122,7 +116,6 @@ public class Connection {
                     oos.writeUTF("image"); // Ало, сервер, лови картинку
                     Log.d("TEST", "Я начал отправку");
                     oos.flush();
-                    Log.d("TEST", "О я почистил буфер");
                     Log.d("TEST", "Вот кст путь " + urlImage);
                     File file = new File(urlImage);
                     Log.d("TEST", "Я получил файл");
@@ -141,12 +134,10 @@ public class Connection {
                     }
                     Log.d("TEST", "Я отправил файл");
                     mSocket.getOutputStream().flush();
-                    MainActivity.status = 5;
-                    MainActivity.statusColor = "#00FF00";
+                    MainActivity.status = 6;
 
                 } catch (IOException e) {
                     MainActivity.status = 7;
-                    MainActivity.statusColor = "#FF0000";
                     Log.e(LOG_TAG,"Ошибка отправки данных : "
                             + e.getMessage());
                 } catch (Exception e) {

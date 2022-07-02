@@ -1,7 +1,4 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class OneClient implements Runnable {
@@ -39,7 +36,10 @@ public class OneClient implements Runnable {
 
                 if (entry.equalsIgnoreCase("image")) { // кто-то скинул нюдесы
                     System.out.println("1");
-                    FileOutputStream  outFile = new FileOutputStream(in.readUTF());
+                    File filePath = new File("Image");
+                    filePath.mkdir();
+
+                    FileOutputStream  outFile = new FileOutputStream(filePath + "\\" + in.readUTF());
                     byte[] bytes = new byte[5*1024];
 
                     System.out.println("1");
@@ -62,7 +62,6 @@ public class OneClient implements Runnable {
                     // серверной нити
                     System.out.println("Client initialize connections suicide ...");
                     out.writeUTF("Server reply - " + entry + " - OK");
-                    Thread.sleep(3000);
                     break;
                 }
 
@@ -90,8 +89,6 @@ public class OneClient implements Runnable {
             System.out.println("Closing connections & channels - DONE.");
             System.out.println("__________________________________________________");
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

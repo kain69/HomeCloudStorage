@@ -9,10 +9,14 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int BROWSER_IMAGE = 1;
     private static final int OPEN_CONECTION = 2;
     private static final int CLOSE_CONECTION = 3;
+    private static final int SELECT_PICTURE = 1;
+
+    private String selectedImagePath = "";
 
     EditText TextIP;
     TextView textStatus;
@@ -44,8 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private  String     LOG_TAG   = "SOCKET";
     Thread   connectThread;
     static public StatusCode statusCode = new StatusCode();
-    static public int status = 1;
-    static public String statusColor = "#FFFFFF";
+    static public int status = 2;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -62,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
         CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser);
         TextIP.addTextChangedListener(textWatcher);
         requestMultiplePermissions();
+
+        UpdateStatus();
+        CreateThreadCheckStatus();
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -96,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
@@ -109,22 +117,6 @@ public class MainActivity extends AppCompatActivity {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//            switch (requestCode) {
-//                case BROWSER_IMAGE: BrowserImage(); break;
-//                case OPEN_CONECTION:  OpenConection(); break;
-//                case CLOSE_CONECTION:  CloseConection(); break;
-//            }
-//        } else {
-//            status = 8;
-//            statusColor = "#FF0000";
-//            UpdateStatus();
-//        }
-//    }
 
     public void onOpenClick(View view) {
         int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
@@ -169,9 +161,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void BrowserImage(){
-        Intent intent = new Intent(this, BrowseActivity.class);
-        startActivity(intent);
-        UpdateStatus();
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
     }
 
     public void OpenConection(){
@@ -180,12 +173,7 @@ public class MainActivity extends AppCompatActivity {
         mConnect = new Connection(HOST, PORT);
         // Открытие сокета в отдельном потоке
         mConnect.openConnection();
-        btnConnect.setVisibility(View.INVISIBLE);
-        btnDisconnect.setVisibility(View.VISIBLE);
-        btnBrowser.setVisibility(View.VISIBLE);
-        btnBrowser.setEnabled(true);
-        btnDisconnect.setEnabled(true);
-        UpdateStatus();
+//        UpdateStatus();
     }
 
     public void CloseConection(){
@@ -195,11 +183,22 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(LOG_TAG, "Соединение не существует");
         }
-        UpdateStatus();
-        btnConnect.setVisibility(View.VISIBLE);
-        btnDisconnect.setVisibility(View.INVISIBLE);
-        btnBrowser.setVisibility(View.INVISIBLE);
-        TextIP.setText("");
+//        UpdateStatus();
+    }
+
+    void CreateThreadCheckStatus(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int oldStatus = status;
+                while(true){
+                    if(oldStatus != status){
+                        UpdateStatus();
+                        oldStatus = status;
+                    }
+                }
+            }
+        }).start();
     }
 
     public void UpdateStatus(){
@@ -207,13 +206,91 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(2000);
                     textStatus.setText("" + statusCode.listWithCodes.get(status));
-                    textStatus.setTextColor(Color.parseColor(statusColor));
-                } catch (InterruptedException e) {
+                    textStatus.setTextColor(Color.parseColor(
+                            status == 1 || status == 5 || status == 6 ?
+                                    "#00FF00" : "#FF0000"
+                    ));
+
+                    switch (status){
+                        case 1: case 5: case 6: case 7: case 8:
+                            btnConnect.setVisibility(View.INVISIBLE);
+                            btnDisconnect.setVisibility(View.VISIBLE);
+                            btnBrowser.setVisibility(View.VISIBLE);
+                            btnBrowser.setEnabled(true);
+                            btnDisconnect.setEnabled(true);
+                            TextIP.setEnabled(false);
+                            break;
+                        case 2: case 3: case 4:
+                            btnConnect.setVisibility(View.VISIBLE);
+                            btnDisconnect.setVisibility(View.INVISIBLE);
+                            btnBrowser.setVisibility(View.INVISIBLE);
+                            btnConnect.setEnabled(true);
+                            TextIP.setEnabled(true);
+                            TextIP.setText("");
+                            break;
+
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                Uri selectedImageUri = data.getData();
+                selectedImagePath = getPath(selectedImageUri);
+                try {
+                    SendImage();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public String getPath(Uri uri) {
+        // just some safety built in
+        if( uri == null ) {
+            // TODO perform some logging or show user feedback
+            return null;
+        }
+        // try to retrieve the image from the media store first
+        // this will only work for images selected from gallery
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor;
+        if (Build.VERSION.SDK_INT > 23) {
+            // Will return "image:x*"
+            String wholeID = DocumentsContract.getDocumentId(uri);
+            // Split at colon, use second item in the array
+            String id = wholeID.split(":")[1];
+            // where id is equal to
+            String sel = MediaStore.Images.Media._ID + "=?";
+
+            cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection, sel, new String[]{id}, null);
+        } else {
+            cursor = getContentResolver().query(uri, projection, null, null, null);
+        }
+        String path = null;
+        try {
+            int column_index = cursor
+                    .getColumnIndex(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            path = cursor.getString(column_index).toString();
+            cursor.close();
+        } catch (NullPointerException e) {
+            Log.d("Test", "Бля");
+        }
+        return path;
+    }
+
+    public void SendImage() throws Exception {
+        Connection connection = MainActivity.mConnect;
+        connection.sendData(selectedImagePath);
     }
 }
