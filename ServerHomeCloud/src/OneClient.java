@@ -57,9 +57,6 @@ public class OneClient implements Runnable {
                 // инициализация проверки условия продолжения работы с клиентом
                 // по этому сокету по кодовому слову - quit в любом регистре
                 if (entry.equalsIgnoreCase("quit")) {
-
-                    // если кодовое слово получено то инициализируется закрытие
-                    // серверной нити
                     System.out.println("Client initialize connections suicide ...");
                     out.writeUTF("Server reply - " + entry + " - OK");
                     break;
@@ -71,8 +68,6 @@ public class OneClient implements Runnable {
 
                 // освобождаем буфер сетевых сообщений
                 out.flush();
-
-                // возвращаемся в началло для считывания нового сообщения
             }
 
             // если условие выхода - верно выключаем соединения

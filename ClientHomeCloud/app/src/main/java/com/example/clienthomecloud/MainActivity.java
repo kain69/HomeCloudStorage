@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private  int        PORT      = 3345;
     private  String     LOG_TAG   = "SOCKET";
     Thread   connectThread;
+    SharedPreferences.Editor editor;
     static public StatusCode statusCode = new StatusCode();
     static public int status = 2;
 
@@ -71,6 +74,17 @@ public class MainActivity extends AppCompatActivity {
 
         UpdateStatus();
         CreateThreadCheckStatus();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        editor = sharedPreferences.edit();
+        String HOSTEditor = sharedPreferences.getString("IP", "");
+        Log.d("EDITOR", HOSTEditor);
+        if(HOSTEditor != "") {
+            HOST = HOSTEditor;
+            TextIP.setText(HOST);
+            mConnect = new Connection(HOST, PORT);
+            mConnect.openConnection();
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -180,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         // Закрытие соединения
         if (mConnect != null) {
             mConnect.closeConnection();
+            HOST = "";
         } else {
             Log.d(LOG_TAG, "Соединение не существует");
         }
@@ -292,5 +307,23 @@ public class MainActivity extends AppCompatActivity {
     public void SendImage() throws Exception {
         Connection connection = MainActivity.mConnect;
         connection.sendData(selectedImagePath);
+    }
+
+    @Override
+    protected void onStop() {
+        editor.remove("IP");
+        if(HOST.matches ("^(\\d{1,3}\\.){3}\\d{1,3}")) {
+            editor.putString("IP", HOST);
+        }else {
+            editor.putString("IP", "");
+        }
+        Log.e("EDITOR", HOST);
+        editor.commit();
+
+        Log.d("DESTROY", "-Умер. -очень жаль( -Это мое имя Умерчик!!!");
+        super.onStop();
+        Log.d("DESTROY", "-Умер. -очень жаль( -Это мое имя Умерчик!!!");
+        CloseConection();
+        finish();
     }
 }
