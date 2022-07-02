@@ -31,9 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-//TODO При повоторном подключении не отправляется картинка (сокет не создается)
-// если менять текст для IP кнопки слетают
-// Почему-то подключается к несушествующим серверам (не сообщает об ошибке)
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int BROWSER_IMAGE = 1;
@@ -45,13 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     EditText TextIP;
     TextView textStatus;
-    Button btnConnect, btnDisconnect, btnBrowser;
+    Button btnConnect, btnDisconnect, btnBrowser, btnGetImage;
     static public  Connection mConnect  = null;
     private  String     HOST      = "";
-    //private  String     HOST      = "192.168.1.109";
     private  int        PORT      = 3345;
     private  String     LOG_TAG   = "SOCKET";
-    Thread   connectThread;
     SharedPreferences.Editor editor;
     static public StatusCode statusCode = new StatusCode();
     static public int status = 2;
@@ -66,7 +62,9 @@ public class MainActivity extends AppCompatActivity {
         btnConnect = (Button) findViewById(R.id.btnConnect);
         btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnBrowser = (Button) findViewById(R.id. btnBrowser);
+        btnGetImage = (Button) findViewById(R.id. btnGetImage);
         btnDisconnect.setVisibility(View.INVISIBLE);
+        btnGetImage.setVisibility(View.INVISIBLE);
         btnBrowser.setVisibility(View.INVISIBLE);
         CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser);
         TextIP.addTextChangedListener(textWatcher);
@@ -174,11 +172,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onGetImageClick(View view){
+            GetImage();
+    }
+
     public void BrowserImage(){
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+    }
+
+    public void GetImage(){
+        mConnect.getData();
     }
 
     public void OpenConection(){
@@ -223,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     textStatus.setText("" + statusCode.listWithCodes.get(status));
                     textStatus.setTextColor(Color.parseColor(
-                            status == 1 || status == 5 || status == 6 ?
+                            status == 1 || status == 5 || status == 6 || status == 10 || status == 11?
                                     "#00FF00" : "#FF0000"
                     ));
 
@@ -231,14 +237,17 @@ public class MainActivity extends AppCompatActivity {
                         case 1: case 5: case 6: case 7: case 8:
                             btnConnect.setVisibility(View.INVISIBLE);
                             btnDisconnect.setVisibility(View.VISIBLE);
+                            btnGetImage.setVisibility(View.VISIBLE);
                             btnBrowser.setVisibility(View.VISIBLE);
                             btnBrowser.setEnabled(true);
+                            btnGetImage.setEnabled(true);
                             btnDisconnect.setEnabled(true);
                             TextIP.setEnabled(false);
                             break;
                         case 2: case 3: case 4:
                             btnConnect.setVisibility(View.VISIBLE);
                             btnDisconnect.setVisibility(View.INVISIBLE);
+                            btnGetImage.setVisibility(View.INVISIBLE);
                             btnBrowser.setVisibility(View.INVISIBLE);
                             btnConnect.setEnabled(true);
                             TextIP.setEnabled(true);

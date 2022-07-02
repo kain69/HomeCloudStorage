@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OneClient implements Runnable {
 
@@ -54,12 +56,20 @@ public class OneClient implements Runnable {
                     }
                     outFile.close();
                 }
-                // инициализация проверки условия продолжения работы с клиентом
-                // по этому сокету по кодовому слову - quit в любом регистре
                 if (entry.equalsIgnoreCase("quit")) {
                     System.out.println("Client initialize connections suicide ...");
                     out.writeUTF("Server reply - " + entry + " - OK");
                     break;
+                }
+                if (entry.equalsIgnoreCase("Allimage")){
+                    File dir = new File("Image"); //path указывает на директорию
+                    out.writeInt(dir.listFiles().length);
+                    //System.out.println("" + dir.listFiles().length);
+                    for ( File file : dir.listFiles() ){
+                        if ( file.isFile() )
+                            out.writeUTF("" + file);
+                            System.out.println("" + file);
+                    }
                 }
 
                 System.out.println("Server try writing to channel");

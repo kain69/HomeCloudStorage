@@ -151,4 +151,37 @@ public class Connection {
         super.finalize();
         closeConnection();
     }
+
+    public void getData() {
+        MainActivity.status = 12;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Проверка открытия сокета
+                    if (mSocket == null || mSocket.isClosed()) {
+                        MainActivity.status = 4;
+                        throw new Exception("Ошибка олучения данных. " +
+                                "Сокет не создан или закрыт");
+                    }
+                    oos.writeUTF("Allimage"); // Ало, сервер, лови картинку
+                    Log.d("TEST", "Дай мне фотки, чел");
+                    oos.flush();
+                    int lenght = ois.readInt();
+                    for (int i = 0; i < lenght; i++){
+                        Log.d("IMAGESERVER", ois.readUTF());
+                    }
+                    oos.flush();
+                    MainActivity.status = 11;
+
+                } catch (IOException e) {
+                    MainActivity.status = 7;
+                    Log.e(LOG_TAG,"Ошибка отправки данных : "
+                            + e.getMessage());
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+            }
+        }).start();
+    }
 }

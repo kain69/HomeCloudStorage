@@ -15,5 +15,8 @@ public class StatusCode {
         listWithCodes.put(7, "Ошибка отправки");
         listWithCodes.put(8, "Пользователь отклонил в доступе");
         listWithCodes.put(9, "не указан IP");
+        listWithCodes.put(10, "Идет получение файлов");
+        listWithCodes.put(11, "Получение успешно");
+        listWithCodes.put(12, "Ошибка получения");
     }
 }
