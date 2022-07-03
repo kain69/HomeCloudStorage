@@ -73,7 +73,6 @@ public class OneClient implements Runnable {
                 }
 
                 System.out.println("Server try writing to channel");
-                out.writeUTF("Server reply - " + entry + " - OK");
                 System.out.println("Server Wrote message to clientDialog.");
 
                 // освобождаем буфер сетевых сообщений

@@ -168,6 +168,7 @@ public class Connection {
                     Log.d("TEST", "Дай мне фотки, чел");
                     oos.flush();
                     int lenght = ois.readInt();
+                    Log.d("TEST", String.valueOf(lenght));
                     for (int i = 0; i < lenght; i++){
                         Log.d("IMAGESERVER", ois.readUTF());
                     }

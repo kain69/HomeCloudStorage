@@ -72,17 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
         UpdateStatus();
         CreateThreadCheckStatus();
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        editor = sharedPreferences.edit();
-        String HOSTEditor = sharedPreferences.getString("IP", "");
-        Log.d("EDITOR", HOSTEditor);
-        if(HOSTEditor != "") {
-            HOST = HOSTEditor;
-            TextIP.setText(HOST);
-            mConnect = new Connection(HOST, PORT);
-            mConnect.openConnection();
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -316,23 +305,5 @@ public class MainActivity extends AppCompatActivity {
     public void SendImage() throws Exception {
         Connection connection = MainActivity.mConnect;
         connection.sendData(selectedImagePath);
-    }
-
-    @Override
-    protected void onStop() {
-        editor.remove("IP");
-        if(HOST.matches ("^(\\d{1,3}\\.){3}\\d{1,3}")) {
-            editor.putString("IP", HOST);
-        }else {
-            editor.putString("IP", "");
-        }
-        Log.e("EDITOR", HOST);
-        editor.commit();
-
-        Log.d("DESTROY", "-Умер. -очень жаль( -Это мое имя Умерчик!!!");
-        super.onStop();
-        Log.d("DESTROY", "-Умер. -очень жаль( -Это мое имя Умерчик!!!");
-        CloseConection();
-        finish();
     }
 }
