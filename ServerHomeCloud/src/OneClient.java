@@ -71,6 +71,29 @@ public class OneClient implements Runnable {
                             System.out.println("" + file);
                     }
                 }
+                if (entry.equalsIgnoreCase("SelectedImage")){
+                    int countImage = in.readInt();
+                    ArrayList<String> selectedPhotos = new ArrayList<String>();
+                    for ( int i = 0; i < countImage; i++ ){
+                        selectedPhotos.add(in.readUTF());
+                    }
+                    for ( int i = 0; i < countImage; i++ ){
+                        //Отправка
+                        File file = new File(selectedPhotos.get(i));
+                        FileInputStream inF = new FileInputStream(file);
+                        byte[] bytes = new byte[5*1024];
+                        int count;
+                        long lenght = file.length();
+                        String[] temp = selectedPhotos.get(i).split("/");
+                        String fileName = temp[temp.length - 1];
+                        out.writeUTF(fileName);
+                        out.writeLong(lenght);
+                        while ((count = inF.read(bytes)) > -1) {
+                            out.write(bytes, 0, count);
+                        }
+                        out.flush();
+                    }
+                }
 
                 System.out.println("Server try writing to channel");
                 System.out.println("Server Wrote message to clientDialog.");

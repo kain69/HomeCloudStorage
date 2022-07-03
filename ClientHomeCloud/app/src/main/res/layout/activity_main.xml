@@ -122,4 +122,18 @@
         app:layout_constraintTop_toBottomOf="@+id/btnGetImage"
         tools:layout_editor_absoluteX="158dp" />
 
+    <Button
+        android:id="@+id/btnOpenListActivity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="16dp"
+        android:onClick="onOpenListActivity"
+        android:text="Open photo list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnDisconnect" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

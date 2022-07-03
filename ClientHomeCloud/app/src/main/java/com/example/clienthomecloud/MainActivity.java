@@ -1,5 +1,9 @@
 package com.example.clienthomecloud;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,6 +11,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -43,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     EditText TextIP;
     TextView textStatus;
-    Button btnConnect, btnDisconnect, btnBrowser, btnGetImage;
+    Button btnConnect, btnDisconnect, btnBrowser, btnGetImage, btnListActivity;
+    ArrayList<String> listPhotos;
     static public  Connection mConnect  = null;
     private  String     HOST      = "";
     private  int        PORT      = 3345;
@@ -61,12 +67,14 @@ public class MainActivity extends AppCompatActivity {
         textStatus = (TextView) findViewById(R.id.textStatus);
         btnConnect = (Button) findViewById(R.id.btnConnect);
         btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
-        btnBrowser = (Button) findViewById(R.id. btnBrowser);
-        btnGetImage = (Button) findViewById(R.id. btnGetImage);
+        btnBrowser = (Button) findViewById(R.id.btnBrowser);
+        btnGetImage = (Button) findViewById(R.id.btnGetImage);
+        btnListActivity = (Button) findViewById(R.id.btnOpenListActivity);
         btnDisconnect.setVisibility(View.INVISIBLE);
         btnGetImage.setVisibility(View.INVISIBLE);
         btnBrowser.setVisibility(View.INVISIBLE);
-        CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser);
+        btnListActivity.setVisibility(View.INVISIBLE);
+        CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser, btnListActivity);
         TextIP.addTextChangedListener(textWatcher);
         requestMultiplePermissions();
 
@@ -173,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void GetImage(){
-        mConnect.getData();
+        listPhotos = mConnect.getData();
     }
 
     public void OpenConection(){
@@ -242,7 +250,12 @@ public class MainActivity extends AppCompatActivity {
                             TextIP.setEnabled(true);
                             TextIP.setText("");
                             break;
-
+                        case 11:
+                            if(listPhotos != null && listPhotos.size() > 0){
+                                btnListActivity.setVisibility(View.VISIBLE);
+                                btnListActivity.setEnabled(true);
+                            }
+                            break;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -262,6 +275,11 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+            if(requestCode == 123){
+                // Запросить и получить фотки;
+                ArrayList<String> selectedPhotos = data.getStringArrayListExtra("SelectedPhotos");
+
             }
         }
     }
@@ -305,5 +323,15 @@ public class MainActivity extends AppCompatActivity {
     public void SendImage() throws Exception {
         Connection connection = MainActivity.mConnect;
         connection.sendData(selectedImagePath);
+    }
+
+    public void onOpenListActivity(View view) {
+        Intent intent = new Intent(this, PhotosListActivity.class);
+        intent.putStringArrayListExtra("Photos", listPhotos);
+        startActivityForResult(intent, 123);
+    }
+
+    public void GetPhotos(){
+       mConnect.getPhotos();
     }
 }

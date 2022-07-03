@@ -10,12 +10,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import android.widget.TextView;
@@ -152,8 +155,9 @@ public class Connection {
         closeConnection();
     }
 
-    public void getData() {
+    public ArrayList<String> getData() {
         MainActivity.status = 12;
+        ArrayList<String> listPhotos = new ArrayList<String>();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -170,7 +174,58 @@ public class Connection {
                     int lenght = ois.readInt();
                     Log.d("TEST", String.valueOf(lenght));
                     for (int i = 0; i < lenght; i++){
-                        Log.d("IMAGESERVER", ois.readUTF());
+                        listPhotos.add(ois.readUTF());
+                        Log.d("IMAGESERVER", listPhotos.get(listPhotos.size() - 1));
+                    }
+                    oos.flush();
+                    MainActivity.status = 11;
+
+                } catch (IOException e) {
+                    MainActivity.status = 7;
+                    Log.e(LOG_TAG,"Ошибка отправки данных : "
+                            + e.getMessage());
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+            }
+        }).start();
+        return listPhotos;
+    }
+
+    public void getPhotos() {
+        MainActivity.status = 12;
+        ArrayList<String> SelectedPhotos = new ArrayList<String>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Проверка открытия сокета
+                    if (mSocket == null || mSocket.isClosed()) {
+                        MainActivity.status = 4;
+                        throw new Exception("Ошибка олучения данных. " +
+                                "Сокет не создан или закрыт");
+                    }
+                    oos.writeUTF("SelectedImage"); // Ало, сервер, лови картинку
+                    oos.writeUTF(String.valueOf(SelectedPhotos.size()));
+                    Log.d("TEST", "Дай мне выбранные фотки, чел");
+                    for (int i = 0; i < SelectedPhotos.size(); i++){
+                        oos.writeUTF(SelectedPhotos.get(i));
+                    }
+                    oos.flush();
+                    for (int i = 0; i < SelectedPhotos.size(); i++){
+                        String name = ois.readUTF();
+                        long lenght = ois.readLong();
+
+                        FileOutputStream outFile = new FileOutputStream(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + name);
+                        byte[] bytes = new byte[5*1024];
+
+                        int count, total=0;
+                        while ((count = ois.read(bytes)) > -1) {
+                            total+=count;
+                            outFile.write(bytes, 0, count);
+                            if (total==lenght) break;
+                        }
+                        outFile.close();
                     }
                     oos.flush();
                     MainActivity.status = 11;
