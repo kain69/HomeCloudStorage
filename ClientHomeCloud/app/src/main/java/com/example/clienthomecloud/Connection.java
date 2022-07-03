@@ -10,12 +10,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import android.widget.TextView;
@@ -54,15 +58,12 @@ public class Connection {
                         // проверяем живой ли канал и работаем если живой
                         Log.d(LOG_TAG, "Iam Connected");
                         MainActivity.status = 1;
-                        MainActivity.statusColor = "#00FF00";
                     }
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                     MainActivity.status = 3;
-                    MainActivity.statusColor = "#FF0000";
                 } catch (IOException e) {
                     MainActivity.status = 3;
-                    MainActivity.statusColor = "#FF0000";
                     e.printStackTrace();
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage());
@@ -84,17 +85,14 @@ public class Connection {
                         oos.close();
                         mSocket.close();
                         MainActivity.status = 2;
-                        MainActivity.statusColor = "#00FF00";
                     }
                     else{
                         Log.d(LOG_TAG, "Соединение не существует");
                         MainActivity.status = 4;
-                        MainActivity.statusColor = "#FF0000";
                     }
                     mSocket = null;
                 } catch (IOException e) {
                     MainActivity.status = 4;
-                    MainActivity.statusColor = "#FF0000";
                     Log.e(LOG_TAG, "Ошибка при закрытии сокета :"
                             + e.getMessage());
                 } catch (Exception e) {
@@ -107,6 +105,7 @@ public class Connection {
     }
 
     public void sendData(String urlImage) throws Exception {
+        MainActivity.status = 5;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -114,7 +113,6 @@ public class Connection {
                     // Проверка открытия сокета
                     if (mSocket == null || mSocket.isClosed()) {
                         MainActivity.status = 4;
-                        MainActivity.statusColor = "#FF0000";
                         throw new Exception("Ошибка отправки данных. " +
                                 "Сокет не создан или закрыт");
                     }
@@ -122,7 +120,6 @@ public class Connection {
                     oos.writeUTF("image"); // Ало, сервер, лови картинку
                     Log.d("TEST", "Я начал отправку");
                     oos.flush();
-                    Log.d("TEST", "О я почистил буфер");
                     Log.d("TEST", "Вот кст путь " + urlImage);
                     File file = new File(urlImage);
                     Log.d("TEST", "Я получил файл");
@@ -141,12 +138,10 @@ public class Connection {
                     }
                     Log.d("TEST", "Я отправил файл");
                     mSocket.getOutputStream().flush();
-                    MainActivity.status = 5;
-                    MainActivity.statusColor = "#00FF00";
+                    MainActivity.status = 6;
 
                 } catch (IOException e) {
                     MainActivity.status = 7;
-                    MainActivity.statusColor = "#FF0000";
                     Log.e(LOG_TAG,"Ошибка отправки данных : "
                             + e.getMessage());
                 } catch (Exception e) {
@@ -159,5 +154,91 @@ public class Connection {
     protected void finalize() throws Throwable {
         super.finalize();
         closeConnection();
+    }
+
+    public ArrayList<String> getData() {
+        MainActivity.status = 12;
+        ArrayList<String> listPhotos = new ArrayList<String>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Проверка открытия сокета
+                    if (mSocket == null || mSocket.isClosed()) {
+                        MainActivity.status = 4;
+                        throw new Exception("Ошибка олучения данных. " +
+                                "Сокет не создан или закрыт");
+                    }
+                    oos.writeUTF("Allimage"); // Ало, сервер, лови картинку
+                    Log.d("TEST", "Дай мне фотки, чел");
+                    oos.flush();
+                    int lenght = ois.readInt();
+                    Log.d("TEST", String.valueOf(lenght));
+                    for (int i = 0; i < lenght; i++){
+                        listPhotos.add(ois.readUTF());
+                        Log.d("IMAGESERVER", listPhotos.get(listPhotos.size() - 1));
+                    }
+                    oos.flush();
+                    MainActivity.status = 11;
+
+                } catch (IOException e) {
+                    MainActivity.status = 7;
+                    Log.e(LOG_TAG,"Ошибка отправки данных : "
+                            + e.getMessage());
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+            }
+        }).start();
+        return listPhotos;
+    }
+
+    public void getPhotos(ArrayList<String> selectedPhotos) {
+        MainActivity.status = 12;
+        ArrayList<String> SelectedPhotos = selectedPhotos;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Проверка открытия сокета
+                    if (mSocket == null || mSocket.isClosed()) {
+                        MainActivity.status = 4;
+                        throw new Exception("Ошибка олучения данных. " +
+                                "Сокет не создан или закрыт");
+                    }
+                    oos.writeUTF("SelectedImage"); // Ало, сервер, лови картинку
+                    oos.writeInt(SelectedPhotos.size());
+                    Log.d("TEST", "Дай мне выбранные фотки, чел");
+                    for (int i = 0; i < SelectedPhotos.size(); i++){
+                        oos.writeUTF(SelectedPhotos.get(i));
+                    }
+                    oos.flush();
+                    for (int i = 0; i < SelectedPhotos.size(); i++){
+                        String name = ois.readUTF();
+                        long lenght = ois.readLong();
+                        Log.d("Dir", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + name);
+                        FileOutputStream outFile = new FileOutputStream(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + name);
+                        byte[] bytes = new byte[5*1024];
+
+                        int count, total=0;
+                        while ((count = ois.read(bytes)) > -1) {
+                            total+=count;
+                            outFile.write(bytes, 0, count);
+                            if (total==lenght) break;
+                        }
+                        outFile.close();
+                    }
+                    oos.flush();
+                    MainActivity.status = 11;
+
+                } catch (IOException e) {
+                    MainActivity.status = 7;
+                    Log.e(LOG_TAG,"Ошибка отправки данных : "
+                            + e.getMessage());
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+            }
+        }).start();
     }
 }

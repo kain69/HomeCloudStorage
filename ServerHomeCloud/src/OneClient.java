@@ -1,8 +1,7 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OneClient implements Runnable {
 
@@ -39,7 +38,10 @@ public class OneClient implements Runnable {
 
                 if (entry.equalsIgnoreCase("image")) { // кто-то скинул нюдесы
                     System.out.println("1");
-                    FileOutputStream  outFile = new FileOutputStream(in.readUTF());
+                    File filePath = new File("Image");
+                    filePath.mkdir();
+
+                    FileOutputStream  outFile = new FileOutputStream(filePath + "/" + in.readUTF());
                     byte[] bytes = new byte[5*1024];
 
                     System.out.println("1");
@@ -54,26 +56,51 @@ public class OneClient implements Runnable {
                     }
                     outFile.close();
                 }
-                // инициализация проверки условия продолжения работы с клиентом
-                // по этому сокету по кодовому слову - quit в любом регистре
                 if (entry.equalsIgnoreCase("quit")) {
-
-                    // если кодовое слово получено то инициализируется закрытие
-                    // серверной нити
                     System.out.println("Client initialize connections suicide ...");
                     out.writeUTF("Server reply - " + entry + " - OK");
-                    Thread.sleep(3000);
                     break;
+                }
+                if (entry.equalsIgnoreCase("Allimage")){
+                    File dir = new File("Image"); //path указывает на директорию
+                    out.writeInt(dir.listFiles().length);
+                    //System.out.println("" + dir.listFiles().length);
+                    for ( File file : dir.listFiles() ){
+                        if ( file.isFile() )
+                            out.writeUTF("" + file);
+                            System.out.println("" + file);
+                    }
+                }
+                if (entry.equalsIgnoreCase("SelectedImage")){
+                    int countImage = in.readInt();
+                    ArrayList<String> selectedPhotos = new ArrayList<String>();
+                    for ( int i = 0; i < countImage; i++ ){
+                        selectedPhotos.add(in.readUTF());
+                    }
+                    for ( int i = 0; i < countImage; i++ ){
+                        //Отправка
+                        File file = new File(selectedPhotos.get(i));
+                        FileInputStream inF = new FileInputStream(file);
+                        byte[] bytes = new byte[5*1024];
+                        int count;
+                        long lenght = file.length();
+                        System.out.println(selectedPhotos.get(i));
+                        String[] temp = selectedPhotos.get(i).split("/");
+                        String fileName = temp[temp.length - 1];
+                        out.writeUTF(fileName);
+                        out.writeLong(lenght);
+                        while ((count = inF.read(bytes)) > -1) {
+                            out.write(bytes, 0, count);
+                        }
+                        out.flush();
+                    }
                 }
 
                 System.out.println("Server try writing to channel");
-                out.writeUTF("Server reply - " + entry + " - OK");
                 System.out.println("Server Wrote message to clientDialog.");
 
                 // освобождаем буфер сетевых сообщений
                 out.flush();
-
-                // возвращаемся в началло для считывания нового сообщения
             }
 
             // если условие выхода - верно выключаем соединения
@@ -90,8 +117,6 @@ public class OneClient implements Runnable {
             System.out.println("Closing connections & channels - DONE.");
             System.out.println("__________________________________________________");
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

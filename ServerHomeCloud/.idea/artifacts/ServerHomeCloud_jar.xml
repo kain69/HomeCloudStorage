@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ServerHomeCloud:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ServerHomeCloud_jar</output-path>
+    <root id="archive" name="ServerHomeCloud.jar">
+      <element id="module-output" name="ServerHomeCloud" />
+    </root>
+  </artifact>
+</component>
