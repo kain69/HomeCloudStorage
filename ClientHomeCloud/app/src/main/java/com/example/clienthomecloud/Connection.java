@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
@@ -192,9 +193,9 @@ public class Connection {
         return listPhotos;
     }
 
-    public void getPhotos() {
+    public void getPhotos(ArrayList<String> selectedPhotos) {
         MainActivity.status = 12;
-        ArrayList<String> SelectedPhotos = new ArrayList<String>();
+        ArrayList<String> SelectedPhotos = selectedPhotos;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -206,7 +207,7 @@ public class Connection {
                                 "Сокет не создан или закрыт");
                     }
                     oos.writeUTF("SelectedImage"); // Ало, сервер, лови картинку
-                    oos.writeUTF(String.valueOf(SelectedPhotos.size()));
+                    oos.writeInt(SelectedPhotos.size());
                     Log.d("TEST", "Дай мне выбранные фотки, чел");
                     for (int i = 0; i < SelectedPhotos.size(); i++){
                         oos.writeUTF(SelectedPhotos.get(i));
@@ -215,7 +216,7 @@ public class Connection {
                     for (int i = 0; i < SelectedPhotos.size(); i++){
                         String name = ois.readUTF();
                         long lenght = ois.readLong();
-
+                        Log.d("Dir", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + name);
                         FileOutputStream outFile = new FileOutputStream(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + name);
                         byte[] bytes = new byte[5*1024];
 

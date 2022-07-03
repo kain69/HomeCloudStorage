@@ -84,7 +84,8 @@ public class OneClient implements Runnable {
                         byte[] bytes = new byte[5*1024];
                         int count;
                         long lenght = file.length();
-                        String[] temp = selectedPhotos.get(i).split("/");
+                        System.out.println(selectedPhotos.get(i));
+                        String[] temp = selectedPhotos.get(i).split("\\\\");
                         String fileName = temp[temp.length - 1];
                         out.writeUTF(fileName);
                         out.writeLong(lenght);

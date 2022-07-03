@@ -278,8 +278,12 @@ public class MainActivity extends AppCompatActivity {
             }
             if(requestCode == 123){
                 // Запросить и получить фотки;
+                Log.d("Test", "Запрос фоток");
                 ArrayList<String> selectedPhotos = data.getStringArrayListExtra("SelectedPhotos");
-
+                for (String photo: selectedPhotos) {
+                    Log.d("TestImage", photo);
+                }
+                mConnect.getPhotos(selectedPhotos);
             }
         }
     }
@@ -329,9 +333,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PhotosListActivity.class);
         intent.putStringArrayListExtra("Photos", listPhotos);
         startActivityForResult(intent, 123);
-    }
-
-    public void GetPhotos(){
-       mConnect.getPhotos();
     }
 }
