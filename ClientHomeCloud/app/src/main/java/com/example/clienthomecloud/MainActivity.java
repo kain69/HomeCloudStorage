@@ -236,6 +236,8 @@ public class MainActivity extends AppCompatActivity {
                             btnDisconnect.setVisibility(View.VISIBLE);
                             btnGetImage.setVisibility(View.VISIBLE);
                             btnBrowser.setVisibility(View.VISIBLE);
+                            btnListActivity.setVisibility(View.INVISIBLE);
+                            btnListActivity.setEnabled(false);
                             btnBrowser.setEnabled(true);
                             btnGetImage.setEnabled(true);
                             btnDisconnect.setEnabled(true);
@@ -246,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
                             btnDisconnect.setVisibility(View.INVISIBLE);
                             btnGetImage.setVisibility(View.INVISIBLE);
                             btnBrowser.setVisibility(View.INVISIBLE);
+                            btnListActivity.setVisibility(View.INVISIBLE);
+                            btnListActivity.setEnabled(false);
                             btnConnect.setEnabled(true);
                             TextIP.setEnabled(true);
                             TextIP.setText("");
