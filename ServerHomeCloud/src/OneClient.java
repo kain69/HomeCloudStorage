@@ -41,7 +41,7 @@ public class OneClient implements Runnable {
                     File filePath = new File("Image");
                     filePath.mkdir();
 
-                    FileOutputStream  outFile = new FileOutputStream(filePath + "\\" + in.readUTF());
+                    FileOutputStream  outFile = new FileOutputStream(filePath + "/" + in.readUTF());
                     byte[] bytes = new byte[5*1024];
 
                     System.out.println("1");
@@ -85,7 +85,7 @@ public class OneClient implements Runnable {
                         int count;
                         long lenght = file.length();
                         System.out.println(selectedPhotos.get(i));
-                        String[] temp = selectedPhotos.get(i).split("\\\\");
+                        String[] temp = selectedPhotos.get(i).split("/");
                         String fileName = temp[temp.length - 1];
                         out.writeUTF(fileName);
                         out.writeLong(lenght);
