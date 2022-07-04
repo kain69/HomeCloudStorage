@@ -12,12 +12,15 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,12 +29,18 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -46,10 +55,13 @@ public class MainActivity extends AppCompatActivity {
 
     private String selectedImagePath = "";
 
-    EditText TextIP;
+    TextView TextIP;
+    Spinner spinner;
     TextView textStatus;
-    Button btnConnect, btnDisconnect, btnBrowser, btnGetImage, btnListActivity;
+    Button btnConnect, btnDisconnect, btnBrowser, btnGetImage, btnListActivity, btnScan;
     ArrayList<String> listPhotos;
+    ArrayList<String> ipList;
+    ArrayAdapter<String> adapterSpinner;
     static public  Connection mConnect  = null;
     private  String     HOST      = "";
     private  int        PORT      = 3345;
@@ -63,20 +75,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TextIP = (EditText) findViewById(R.id.TextIP);
+        TextIP = (TextView) findViewById(R.id.TextIP);
+        spinner = (Spinner) findViewById(R.id.spinner);
         textStatus = (TextView) findViewById(R.id.textStatus);
         btnConnect = (Button) findViewById(R.id.btnConnect);
         btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnBrowser = (Button) findViewById(R.id.btnBrowser);
         btnGetImage = (Button) findViewById(R.id.btnGetImage);
         btnListActivity = (Button) findViewById(R.id.btnOpenListActivity);
+        btnScan = (Button) findViewById(R.id.btnScan);
         btnDisconnect.setVisibility(View.INVISIBLE);
         btnGetImage.setVisibility(View.INVISIBLE);
         btnBrowser.setVisibility(View.INVISIBLE);
         btnListActivity.setVisibility(View.INVISIBLE);
-        CustomTextWatcher textWatcher = new CustomTextWatcher(TextIP, btnConnect, btnDisconnect, btnBrowser, btnListActivity);
-        TextIP.addTextChangedListener(textWatcher);
+        btnScan.setVisibility(View.INVISIBLE);
         requestMultiplePermissions();
+
+        ipList = new ArrayList<>();
+        adapterSpinner = new ArrayAdapter(this, android.R.layout.simple_spinner_item, ipList);
+        // Определяем разметку для использования при выборе элемента
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapterSpinner);
+        AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                Log.d("Test", (String)parent.getItemAtPosition(position));
+                // Получаем выбранный объект
+                String item = (String)parent.getItemAtPosition(position);
+                TextIP.setText(item);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d("Test", "Nothing selected");
+            }
+        };
+        spinner.setOnItemSelectedListener(itemSelectedListener);
 
         UpdateStatus();
         CreateThreadCheckStatus();
@@ -186,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void OpenConection(){
         // Создание подключения
+        Log.d("Test", TextIP.getText().toString());
         HOST = TextIP.getText().toString();
         mConnect = new Connection(HOST, PORT);
         // Открытие сокета в отдельном потоке
@@ -226,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     textStatus.setText("" + statusCode.listWithCodes.get(status));
                     textStatus.setTextColor(Color.parseColor(
-                            status == 1 || status == 5 || status == 6 || status == 10 || status == 11?
+                            status == 1 || status == 5 || status == 6 || status == 10 || status == 11 || status == 13 || status == 14?
                                     "#00FF00" : "#FF0000"
                     ));
 
@@ -237,7 +273,9 @@ public class MainActivity extends AppCompatActivity {
                             btnGetImage.setVisibility(View.VISIBLE);
                             btnBrowser.setVisibility(View.VISIBLE);
                             btnListActivity.setVisibility(View.INVISIBLE);
+                            btnScan.setVisibility(View.INVISIBLE);
                             btnListActivity.setEnabled(false);
+                            btnScan.setEnabled(false);
                             btnBrowser.setEnabled(true);
                             btnGetImage.setEnabled(true);
                             btnDisconnect.setEnabled(true);
@@ -245,20 +283,27 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case 2: case 3: case 4:
                             btnConnect.setVisibility(View.VISIBLE);
+                            btnScan.setVisibility(View.VISIBLE);
                             btnDisconnect.setVisibility(View.INVISIBLE);
                             btnGetImage.setVisibility(View.INVISIBLE);
                             btnBrowser.setVisibility(View.INVISIBLE);
                             btnListActivity.setVisibility(View.INVISIBLE);
                             btnListActivity.setEnabled(false);
                             btnConnect.setEnabled(true);
+                            btnScan.setEnabled(true);
                             TextIP.setEnabled(true);
-                            TextIP.setText("");
                             break;
                         case 11:
                             if(listPhotos != null && listPhotos.size() > 0){
                                 btnListActivity.setVisibility(View.VISIBLE);
                                 btnListActivity.setEnabled(true);
                             }
+                            break;
+                        case 12:
+                            btnScan.setEnabled(false);
+                            break;
+                        case 13:
+                            btnScan.setEnabled(true);
                             break;
                     }
                 } catch (Exception e) {
@@ -337,5 +382,65 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PhotosListActivity.class);
         intent.putStringArrayListExtra("Photos", listPhotos);
         startActivityForResult(intent, 123);
+    }
+
+    public void onScanClick(View view) {
+        new ScanIpTask().execute();
+    }
+
+    private class ScanIpTask extends AsyncTask<Void, String, Void> {
+
+        /*
+        Scan IP 192.168.1.100~192.168.1.110
+        you should try different timeout for your network/devices
+         */
+        static final String subnet = "192.168.1.";
+        static final int lower = 2;
+        static final int upper = 225;
+        static final int timeout = 5;
+
+        @Override
+        protected void onPreExecute() {
+            ipList.clear();
+            status = 13;
+            Log.d("SCAN", "Start Scan");
+            adapterSpinner.notifyDataSetChanged();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            for (int i = lower; i <= upper; i++) {
+                String host = subnet + i;
+
+                try {
+                    InetAddress inetAddress = InetAddress.getByName(host);
+                    if (inetAddress.isReachable(timeout)) {
+                        publishProgress(inetAddress.toString());
+                    }
+
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            ipList.add(values[0].split("/")[1]);
+            Log.d("SCAN", values[0].split("/")[1]);
+            adapterSpinner.notifyDataSetChanged();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(MainActivity.this, "Done", Toast.LENGTH_LONG).show();
+            status = 14;
+            Log.d("SCAN", "Done Scan");
+        }
     }
 }

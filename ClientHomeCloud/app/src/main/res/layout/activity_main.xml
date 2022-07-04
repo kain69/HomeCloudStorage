@@ -25,30 +25,46 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="16dp"
         android:onClick="onOpenClick"
         android:text="Connect"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TextIP"
+        app:layout_constraintTop_toBottomOf="@+id/btnScan"
         tools:ignore="MissingConstraints" />
 
-    <EditText
+    <TextView
         android:id="@+id/TextIP"
-        android:layout_width="388dp"
-        android:layout_height="0dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:textSize="26sp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:layout_weight="2"
-        android:digits="0123456789."
-        android:ems="10"
-        android:hint="IP Address"
-        android:inputType="number|numberDecimal"
-        android:textAppearance="@android:style/TextAppearance.Small"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </TextView>
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="50dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toEndOf="@+id/TextIP"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnScan"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="16dp"
+        android:onClick="onScanClick"
+        android:text="Scan IPs"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/TextIP" />
 
     <Button
         android:id="@+id/btnBrowser"
