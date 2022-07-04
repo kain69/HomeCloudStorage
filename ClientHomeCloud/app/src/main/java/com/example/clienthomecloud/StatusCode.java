@@ -18,5 +18,7 @@ public class StatusCode {
         listWithCodes.put(10, "Идет получение файлов");
         listWithCodes.put(11, "Получение успешно");
         listWithCodes.put(12, "Ошибка получения");
+        listWithCodes.put(13, "Начато сканирование");
+        listWithCodes.put(14, "Сканирование завершено");
     }
 }
