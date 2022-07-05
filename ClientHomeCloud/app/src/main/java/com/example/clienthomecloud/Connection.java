@@ -124,7 +124,7 @@ public class Connection {
                     File file = new File(urlImage);
                     Log.d("TEST", "Я получил файл");
                     FileInputStream inF = new FileInputStream(file);
-                    Log.d("TEST", "Я закинул файлв в поток");
+                    Log.d("TEST", "Я закинул файл в поток");
                     byte[] bytes = new byte[5*1024];
                     int count;
                     long lenght = file.length();
@@ -170,7 +170,7 @@ public class Connection {
                                 "Сокет не создан или закрыт");
                     }
                     oos.writeUTF("Allimage"); // Ало, сервер, лови картинку
-                    Log.d("TEST", "Дай мне фотки, чел");
+                    Log.d("TEST", "Запрос фоток");
                     oos.flush();
                     int lenght = ois.readInt();
                     Log.d("TEST", String.valueOf(lenght));
@@ -208,7 +208,7 @@ public class Connection {
                     }
                     oos.writeUTF("SelectedImage"); // Ало, сервер, лови картинку
                     oos.writeInt(SelectedPhotos.size());
-                    Log.d("TEST", "Дай мне выбранные фотки, чел");
+                    Log.d("TEST", "Дай мне выбранные фотки");
                     for (int i = 0; i < SelectedPhotos.size(); i++){
                         oos.writeUTF(SelectedPhotos.get(i));
                     }

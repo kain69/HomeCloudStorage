@@ -299,12 +299,6 @@ public class MainActivity extends AppCompatActivity {
                                 btnListActivity.setEnabled(true);
                             }
                             break;
-                        case 12:
-                            btnScan.setEnabled(false);
-                            break;
-                        case 13:
-                            btnScan.setEnabled(true);
-                            break;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -368,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
             path = cursor.getString(column_index).toString();
             cursor.close();
         } catch (NullPointerException e) {
-            Log.d("Test", "Бля");
+            Log.d("Test", "Ошибка курсора");
         }
         return path;
     }
@@ -397,12 +391,14 @@ public class MainActivity extends AppCompatActivity {
         static final String subnet = "192.168.1.";
         static final int lower = 2;
         static final int upper = 225;
-        static final int timeout = 5;
+        static final int timeout = 10;
 
         @Override
         protected void onPreExecute() {
             ipList.clear();
             status = 13;
+            btnScan.setEnabled(false);
+            btnConnect.setEnabled(false);
             Log.d("SCAN", "Start Scan");
             adapterSpinner.notifyDataSetChanged();
         }
@@ -440,6 +436,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             Toast.makeText(MainActivity.this, "Done", Toast.LENGTH_LONG).show();
             status = 14;
+            btnScan.setEnabled(true);
+            btnConnect.setEnabled(true);
             Log.d("SCAN", "Done Scan");
         }
     }
