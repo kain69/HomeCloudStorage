@@ -9,3 +9,5 @@ HomeCloudStorage ГПР ПГНИУ
 Для запуска клиента: ClientHomeCloud/app/src/main/java/com/example/clienthomecloud/MainActivity
 
 Для запуска сервера: ServerHomeCloud/src/Server
+
+![image](https://user-images.githubusercontent.com/37839328/185901308-bcb29342-1429-4053-8259-a5b9a6999ae7.png)
