@@ -11,4 +11,5 @@ HomeCloudStorage ГПР ПГНИУ
 Для запуска сервера: ServerHomeCloud/src/Server
 
 Android App
+
 ![image](https://user-images.githubusercontent.com/37839328/185901308-bcb29342-1429-4053-8259-a5b9a6999ae7.png)
